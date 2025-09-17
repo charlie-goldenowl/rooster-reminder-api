@@ -1,98 +1,239 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Birthday Reminder Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A scalable, timezone-aware birthday reminder service built with NestJS, TypeORM, and Bull Queue.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🏗️ Architecture Overview
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ npm install
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   REST API      │    │   Event Engine   │    │  Message Queue  │
+│   (Controllers) │────│   (Schedulers)   │────│   (Bull Queue)  │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   User Service  │    │  Event Service   │    │ Notification    │
+│                 │    │   (Extensible)   │    │    Service      │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              Database Layer (PostgreSQL + Redis)                │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-## Compile and run the project
+## 🚀 Features
 
-```bash
-# development
-$ npm run start
+- ✅ **Timezone-aware scheduling**: Send messages at 9 AM local time
+- ✅ **Fault tolerance**: Auto-retry failed messages with exponential backoff
+- ✅ **Race condition prevention**: Distributed locking with Redis
+- ✅ **Extensible architecture**: Easy to add new event types (anniversary, etc.)
+- ✅ **Scalable design**: Handle thousands of events per day
+- ✅ **Comprehensive testing**: Unit and integration tests
+- ✅ **Production ready**: Logging, monitoring, validation
 
-# watch mode
-$ npm run start:dev
+## 📋 Project Structure
 
-# production mode
-$ npm run start:prod
+```
+src/
+├── modules/
+│   ├── user/                   # User management
+│   │   ├── dto/
+│   │   ├── entities/
+│   │   ├── user.controller.ts
+│   │   ├── user.service.ts
+│   │   └── user.module.ts
+│   ├── event/                  # Event management (extensible)
+│   │   ├── dto/
+│   │   ├── entities/
+│   │   ├── enums/
+│   │   ├── interfaces/
+│   │   ├── processors/
+│   │   ├── event.service.ts
+│   │   └── event.module.ts
+│   ├── notification/           # Message delivery
+│   │   ├── dto/
+│   │   ├── entities/
+│   │   ├── notification.service.ts
+│   │   └── notification.module.ts
+│   └── scheduler/              # Cron jobs and queue management
+│       ├── scheduler.service.ts
+│       └── scheduler.module.ts
+├── common/
+│   ├── decorators/
+│   ├── guards/
+│   ├── interfaces/
+│   └── utils/
+├── config/
+├── database/
+└── main.ts
 ```
 
-## Run tests
+## 🛠️ Installation & Setup
 
+### Prerequisites
+- Node.js >= 18
+- PostgreSQL >= 13
+- Redis >= 6
+
+### 1. Install Dependencies
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+### 2. Environment Setup
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+cp .env.example .env
+# Edit .env with your database credentials
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 3. Database Setup
+```bash
+# Generate migration
+npm run migration:generate
 
-## Resources
+# Run migrations
+npm run migration:run
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### 4. Start Services
+```bash
+# Development
+npm run start:dev
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# Production
+npm run start:prod
+```
 
-## Support
+## 📚 API Documentation
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Users
+```http
+# Create user
+POST /user
+{
+  "firstName": "John",
+  "lastName": "Doe", 
+  "birthday": "1990-05-15",
+  "timezone": "America/New_York"
+}
 
-## Stay in touch
+# Update user
+PUT /user/:id
+{
+  "firstName": "Jane",
+  "timezone": "America/Los_Angeles"
+}
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# Delete user
+DELETE /user/:id
+```
 
-## License
+### Health Check
+```http
+GET /health
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## 🏗️ Architecture Details
+
+### 1. Extensible Event System
+The system is designed to handle multiple event types through a plugin architecture:
+
+- **Event Types**: Enum-based event type system
+- **Event Processors**: Strategy pattern for different event handling
+- **Message Builders**: Template-based message generation
+
+### 2. Timezone Handling
+- Uses `luxon` for robust timezone calculations
+- Handles DST transitions automatically
+- Stores timezone strings (e.g., "America/New_York")
+
+### 3. Fault Tolerance
+- **Queue System**: Bull queue with Redis
+- **Retry Logic**: Exponential backoff (3 attempts)
+- **Dead Letter Queue**: Failed messages after all retries
+- **Duplicate Prevention**: Redis-based distributed locking
+
+### 4. Scalability Features
+- **Horizontal Scaling**: Stateless design
+- **Database Optimization**: Proper indexing and constraints
+- **Queue Workers**: Multiple workers can process jobs
+- **Caching**: Redis for locks and temporary data
+
+## 🧪 Testing
+
+```bash
+# Unit tests
+npm run test
+
+# Integration tests  
+npm run test:e2e
+
+# Test coverage
+npm run test:cov
+```
+
+## 📊 Monitoring & Observability
+
+- **Health Checks**: `/health` endpoint
+- **Queue Dashboard**: Bull Dashboard at `/admin/queues`
+- **Logging**: Structured logging with Winston
+- **Metrics**: Custom metrics for message delivery
+
+## 🔧 Configuration
+
+Key environment variables:
+
+```env
+# Database
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_NAME=birthday_reminder
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=password
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# Webhook
+WEBHOOK_URL=https://hookbin.com/your-bin
+
+# App
+PORT=3000
+NODE_ENV=development
+```
+
+## 🚀 Deployment
+
+### Docker
+```bash
+docker-compose up -d
+```
+
+### Production Checklist
+- [ ] Set NODE_ENV=production
+- [ ] Configure proper database credentials
+- [ ] Set up Redis cluster
+- [ ] Configure logging level
+- [ ] Set up monitoring (Prometheus/Grafana)
+- [ ] Configure reverse proxy (Nginx)
+
+## 📈 Performance Considerations
+
+- **Database**: Proper indexing on birthday + timezone
+- **Queue**: Redis persistence configured
+- **Memory**: Efficient TypeORM entity loading
+- **CPU**: Optimized cron scheduling (hourly checks)
+
+## 🔄 Future Extensions
+
+Easy to add new features:
+
+1. **New Event Types**: Add to `EventType` enum + create processor
+2. **New Channels**: SMS, Push notifications (implement `NotificationChannel`)
+3. **Advanced Scheduling**: Custom times, recurring events
+4. **Analytics**: Event tracking, delivery reports
+
+
+**Built with ❤️ using NestJS, TypeORM, and Bull Queue**

@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  dev-db:
+    image: postgres:13
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: rooster_strong_pw
+      POSTGRES_DB: rooster_db
+    networks:
+      - rooster
+  test-db:
+    image: postgres:13
+    ports:
+      - 5435:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test_passwd
+      POSTGRES_DB: rooster_db_test
+    networks:
+      - rooster
+networks:
+  rooster:
