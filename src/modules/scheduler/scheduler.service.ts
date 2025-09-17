@@ -38,7 +38,7 @@ export class SchedulerService {
   /**
    * Main scheduler - runs every hour to check for events
    */
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_HOUR)
   async scheduleEvents() {
     this.logger.log('[scheduleEvents] Starting hourly event scheduling');
 
@@ -66,7 +66,7 @@ export class SchedulerService {
   /**
    * Recovery scheduler - runs every 30 minutes to retry failed events
    */
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async scheduleEventRecovery() {
     this.logger.log('[scheduleEventRecovery] Starting event recovery process');
 
@@ -95,7 +95,7 @@ export class SchedulerService {
   /**
    * Cleanup scheduler - runs daily at 2 AM to clean old data
    */
-  @Cron('0 2 * * *')
+  @Cron(CronExpression.EVERY_DAY_AT_2AM)
   async scheduleCleanup() {
     this.logger.log('Starting daily cleanup process');
 
