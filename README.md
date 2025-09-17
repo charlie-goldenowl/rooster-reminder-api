@@ -1,75 +1,66 @@
-# Birthday Reminder Service
+# Rooster Reminder
+Birthday Reminder Service
 
-A scalable, timezone-aware birthday reminder service built with NestJS, TypeORM, and Bull Queue.
+A scalable, timezone-aware birthday reminder service built with NestJS, TypeORM, and Bull Queue
 
-## 🏗️ Architecture Overview
+## Architecture Overview
+* **NestJS**
+   * REST API (Controllers)
+   * Event Engine (Schedulers – Cron jobs)
+   * Message Queue (Bull)
+   * Services: User, Event (extensible), Notification
+* **Database Layer**
+   * PostgreSQL (relational data)
+   * Redis (queue + caching)
+* **Testing**
+   * Jest + Supertest (E2E & unit tests)
+
+## Code Flow Diagram
+[![](https://mermaid.ink/img/pako:eNqVVttu4zYQ_ZWBFtt0USZrS7YSG9stfI1zceJEzi5aJShoaWwTlkUvJTXxJnnsW4E-9HX7D_2mfElHpHxbFEWbByMk55yZOTwk9WgFMkSrbk0UX0xh2LyNgf5ev4aWVAjdSN6bmYZ_k6CCxuDk3Ui9fd-6vmlDPpPcwf7-e2j63w5kkk4UelfnOkIvwjfQ-QXjFM7lJHlzZ6jMb8t_-f0vaCkZ5yFqCT2ZKcM9xWAGTaHSaciXMBRzNEnaj61MqZwuj4Xvodboa4SIgcdLSCnys4zxh-ftRO0c-_QjJk_Q8bsiDjfUusYVw5CrCaY6XU6S3G3DL-QTdH1vJhZwE6ciggt8MGXsNNXRdR77LYU8xa3edZKBQj3RzhaRCChgleNYw3r-VYYZwqkcmfhmFkVg5r6DawxFspOsp1En_kepZrQ1AyUDTAxSB1Ni0pGmUwxSIeMCfKJhp34zE1EIfYLwCWrUXg-XjNJPYxDpXgLLXOVRIdZeAT_V8DPfQ1IylTAQCwyp3blp8dIbwlslyQuo9ueGfKfqM40_f_yIo6mUM_CyIC97tWfnWu6XL7-CXSrB5dkT9P0-VzPgCXidi-HdTtifv0FHKame4GId1W2cnHfauhovmGKYRUjipWq5UwY5vMuziPZbRqh4HKCZv_SvMZDakLk3NY3xp1OCvoizfNd0CwNjpi4XEYZmq434Kk_2cyAz2up34BRpBxp05etS4F6kU8P9sCCzkaV4BE0ezOR4XACujCm-KrrzkGKciBE11cZETGKzcu0brxUmkIWtV05n0IhjQW0knHSA_YPcpQbp-RcyFePcj-QRaE15HGNk4MUeMfD6HoPOnFotwGdflXWGS-iS5zOF5Ds-IgazNvSveYB0m8Sh0AmKQyAKbV--_GGsDW2RpEqMSOBQOzdZr7ebdOjEp0zTUBAXJHWh0o2_OrDQuOcK1yC6G3IakjUP2HCRP3s8DiMRTwqKD75HYXwj6TrYnD1zvjbl9KQSlDAl6hy4IVqr4aXLfNqMg4gnSRvHsFBiTvLndyqMRRTVX1VajW61xKglOcP6K7tz2HbsYrh_L8J0WncWDyyQkVT1-6lI8StKzM2_RditVBzHXRO2XPvIPtoltP-V8FPe8TZht3ZU2lTYcavl9fA_EeLGr4ax1rIPmxtGt1Fu1hr_h3G8spnhs8s1t-us-UrtymGjvMtX_ie-LVZosCbrsGN2ys5Yf3uftoMu2IBdbRTfXuqxE3a50W576Zp5WxpsrwzZDfuw7sZi1hwVnbCQHuPHPO7WSqc4x1urTv-GOM5vq1vrNn6mUJ6l0lvGgVUf8yhBZimZTabrUbYI6XVpC06v-nw9u-DxT1LSOFWZGVr1R-vBqlfdg3K1Rhtru3bNtivlKrOWVr3sOgdutVotlRynYlfsqvvMrM-aoXxQcWzbqR3ZNcc-cm3XYfQFkdduuOmRDlG18ivQqrvVGrPoiKdS9c3Hhv7meP4bGHnBUw?type=png)](https://mermaid.live/edit#pako:eNqVVttu4zYQ_ZWBFtt0USZrS7YSG9stfI1zceJEzi5aJShoaWwTlkUvJTXxJnnsW4E-9HX7D_2mfElHpHxbFEWbByMk55yZOTwk9WgFMkSrbk0UX0xh2LyNgf5ev4aWVAjdSN6bmYZ_k6CCxuDk3Ui9fd-6vmlDPpPcwf7-e2j63w5kkk4UelfnOkIvwjfQ-QXjFM7lJHlzZ6jMb8t_-f0vaCkZ5yFqCT2ZKcM9xWAGTaHSaciXMBRzNEnaj61MqZwuj4Xvodboa4SIgcdLSCnys4zxh-ftRO0c-_QjJk_Q8bsiDjfUusYVw5CrCaY6XU6S3G3DL-QTdH1vJhZwE6ciggt8MGXsNNXRdR77LYU8xa3edZKBQj3RzhaRCChgleNYw3r-VYYZwqkcmfhmFkVg5r6DawxFspOsp1En_kepZrQ1AyUDTAxSB1Ni0pGmUwxSIeMCfKJhp34zE1EIfYLwCWrUXg-XjNJPYxDpXgLLXOVRIdZeAT_V8DPfQ1IylTAQCwyp3blp8dIbwlslyQuo9ueGfKfqM40_f_yIo6mUM_CyIC97tWfnWu6XL7-CXSrB5dkT9P0-VzPgCXidi-HdTtifv0FHKame4GId1W2cnHfauhovmGKYRUjipWq5UwY5vMuziPZbRqh4HKCZv_SvMZDakLk3NY3xp1OCvoizfNd0CwNjpi4XEYZmq434Kk_2cyAz2up34BRpBxp05etS4F6kU8P9sCCzkaV4BE0ezOR4XACujCm-KrrzkGKciBE11cZETGKzcu0brxUmkIWtV05n0IhjQW0knHSA_YPcpQbp-RcyFePcj-QRaE15HGNk4MUeMfD6HoPOnFotwGdflXWGS-iS5zOF5Ds-IgazNvSveYB0m8Sh0AmKQyAKbV--_GGsDW2RpEqMSOBQOzdZr7ebdOjEp0zTUBAXJHWh0o2_OrDQuOcK1yC6G3IakjUP2HCRP3s8DiMRTwqKD75HYXwj6TrYnD1zvjbl9KQSlDAl6hy4IVqr4aXLfNqMg4gnSRvHsFBiTvLndyqMRRTVX1VajW61xKglOcP6K7tz2HbsYrh_L8J0WncWDyyQkVT1-6lI8StKzM2_RditVBzHXRO2XPvIPtoltP-V8FPe8TZht3ZU2lTYcavl9fA_EeLGr4ax1rIPmxtGt1Fu1hr_h3G8spnhs8s1t-us-UrtymGjvMtX_ie-LVZosCbrsGN2ys5Yf3uftoMu2IBdbRTfXuqxE3a50W576Zp5WxpsrwzZDfuw7sZi1hwVnbCQHuPHPO7WSqc4x1urTv-GOM5vq1vrNn6mUJ6l0lvGgVUf8yhBZimZTabrUbYI6XVpC06v-nw9u-DxT1LSOFWZGVr1R-vBqlfdg3K1Rhtru3bNtivlKrOWVr3sOgdutVotlRynYlfsqvvMrM-aoXxQcWzbqR3ZNcc-cm3XYfQFkdduuOmRDlG18ivQqrvVGrPoiKdS9c3Hhv7meP4bGHnBUw)
+
+## Features
+
+-  **Timezone-aware scheduling**: Send messages at 9 AM local time
+-  **Fault tolerance**: Auto-retry failed messages with exponential backoff
+-  **Race condition prevention**: Distributed locking with Redis  (BullMQ)
+-  **Extensible architecture**: Easy to add new event types (anniversary, etc.)
+
+## Future Extensions
+
+Easy to add new features:
+
+1. New event types (anniversary, holiday, reminders)
+   view more:
+```javascript
+export enum EventType {
+  BIRTHDAY = 'birthday',
+  ANNIVERSARY = 'anniversary',
+  // Easy to extend: HOLIDAY = 'holiday', REMINDER = 'reminder'
+}
 
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   REST API      │    │   Event Engine   │    │  Message Queue  │
-│   (Controllers) │────│   (Schedulers)   │────│   (Bull Queue)  │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   User Service  │    │  Event Service   │    │ Notification    │
-│                 │    │   (Extensible)   │    │    Service      │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              Database Layer (PostgreSQL + Redis)                │
-└─────────────────────────────────────────────────────────────────┘
+2. New channels (SMS, Push notifications)
+   view more:
+```shell
+src/modules/notification/notification.service.ts
 ```
+3. Advanced scheduling (custom/recurring)
+4. Analytics (tracking & reports)
 
-## 🚀 Features
 
-- ✅ **Timezone-aware scheduling**: Send messages at 9 AM local time
-- ✅ **Fault tolerance**: Auto-retry failed messages with exponential backoff
-- ✅ **Race condition prevention**: Distributed locking with Redis
-- ✅ **Extensible architecture**: Easy to add new event types (anniversary, etc.)
-- ✅ **Scalable design**: Handle thousands of events per day
-- ✅ **Comprehensive testing**: Unit and integration tests
-- ✅ **Production ready**: Logging, monitoring, validation
 
-## 📋 Project Structure
+## Project Structure
 
 ```
 src/
 ├── modules/
 │   ├── user/                   # User management
-│   │   ├── dto/
-│   │   ├── entities/
-│   │   ├── user.controller.ts
-│   │   ├── user.service.ts
-│   │   └── user.module.ts
 │   ├── event/                  # Event management (extensible)
-│   │   ├── dto/
-│   │   ├── entities/
-│   │   ├── enums/
-│   │   ├── interfaces/
-│   │   ├── processors/
-│   │   ├── event.service.ts
-│   │   └── event.module.ts
-│   ├── notification/           # Message delivery
-│   │   ├── dto/
-│   │   ├── entities/
-│   │   ├── notification.service.ts
-│   │   └── notification.module.ts
-│   └── scheduler/              # Cron jobs and queue management
-│       ├── scheduler.service.ts
-│       └── scheduler.module.ts
-├── common/
-│   ├── decorators/
-│   ├── guards/
-│   ├── interfaces/
-│   └── utils/
-├── config/
-├── database/
-└── main.ts
+│   ├── notification/           # Message delivery  
+│   └── scheduler/              # Cron jobs and queue management  
 ```
 
-## 🛠️ Installation & Setup
+## Installation & Setup
 
 ### Prerequisites
 - Node.js >= 18
@@ -105,135 +96,26 @@ npm run start:dev
 npm run start:prod
 ```
 
-## 📚 API Documentation
+## API Documentation
+- **API Documentation**: http://localhost:3000/api
 
-### Users
-```http
-# Create user
-POST /user
-{
-  "firstName": "John",
-  "lastName": "Doe", 
-  "birthday": "1990-05-15",
-  "timezone": "America/New_York"
-}
 
-# Update user
-PUT /user/:id
-{
-  "firstName": "Jane",
-  "timezone": "America/Los_Angeles"
-}
-
-# Delete user
-DELETE /user/:id
-```
-
-### Health Check
-```http
-GET /health
-```
-
-## 🏗️ Architecture Details
-
-### 1. Extensible Event System
-The system is designed to handle multiple event types through a plugin architecture:
-
-- **Event Types**: Enum-based event type system
-- **Event Processors**: Strategy pattern for different event handling
-- **Message Builders**: Template-based message generation
-
-### 2. Timezone Handling
-- Uses `luxon` for robust timezone calculations
-- Handles DST transitions automatically
-- Stores timezone strings (e.g., "America/New_York")
-
-### 3. Fault Tolerance
-- **Queue System**: Bull queue with Redis
-- **Retry Logic**: Exponential backoff (3 attempts)
-- **Dead Letter Queue**: Failed messages after all retries
-- **Duplicate Prevention**: Redis-based distributed locking
-
-### 4. Scalability Features
-- **Horizontal Scaling**: Stateless design
-- **Database Optimization**: Proper indexing and constraints
-- **Queue Workers**: Multiple workers can process jobs
-- **Caching**: Redis for locks and temporary data
-
-## 🧪 Testing
-
-```bash
-# Unit tests
-npm run test
-
-# Integration tests  
-npm run test:e2e
-
-# Test coverage
-npm run test:cov
-```
-
-## 📊 Monitoring & Observability
-
+## Monitoring & Observability
 - **Health Checks**: `/health` endpoint
-- **Queue Dashboard**: Bull Dashboard at `/admin/queues`
+- **Queue Dashboard**: Bull Dashboard at http://localhost:3000/admin/queues
 - **Logging**: Structured logging with Winston
 - **Metrics**: Custom metrics for message delivery
 
-## 🔧 Configuration
-
-Key environment variables:
-
-```env
-# Database
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-DATABASE_NAME=rooster_db
-DATABASE_USERNAME=postgres
-DATABASE_PASSWORD=password
-
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-
-# Webhook
-WEBHOOK_URL=https://hookbin.com/your-bin
-
-# App
-PORT=3000
-NODE_ENV=development
-```
-
-## 🚀 Deployment
+##  Deployment
 
 ### Docker
 ```bash
 docker-compose up -d
 ```
 
-### Production Checklist
-- [ ] Set NODE_ENV=production
-- [ ] Configure proper database credentials
-- [ ] Set up Redis cluster
-- [ ] Configure logging level
-- [ ] Set up monitoring (Prometheus/Grafana)
-- [ ] Configure reverse proxy (Nginx)
+## Unit tests
 
-## 📈 Performance Considerations
-
-- **Database**: Proper indexing on birthday + timezone
-- **Queue**: Redis persistence configured
-- **Memory**: Efficient TypeORM entity loading
-- **CPU**: Optimized cron scheduling (hourly checks)
-
-## 🔄 Future Extensions
-
-Easy to add new features:
-
-1. **New Event Types**: Add to `EventType` enum + create processor
-2. **New Channels**: SMS, Push notifications (implement `NotificationChannel`)
-3. **Advanced Scheduling**: Custom times, recurring events
-4. **Analytics**: Event tracking, delivery reports
-
-
-**Built with ❤️ using NestJS, TypeORM, and Bull Queue**
+```bash
+npm run test
+```
+![img.png](img.png)

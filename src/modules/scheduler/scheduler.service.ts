@@ -5,24 +5,27 @@ import type { Queue } from 'bull';
 import { UserService } from '../user/user.service';
 import { EventService } from '../event/event.service';
 import { TimezoneUtil } from '../../common/utils/timezone.util';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SchedulerService {
   private readonly logger = new Logger(SchedulerService.name);
+  private readonly birthdayCheckHour: number;
 
   constructor(
     private readonly userService: UserService,
     private readonly eventService: EventService,
+    private readonly configService: ConfigService,
     @InjectQueue('event-processing') private readonly eventQueue: Queue,
     @InjectQueue('notification') private readonly notificationQueue: Queue,
-  ) {}
-
-  /**
-   * Test cron -  runs every minute
-   */
-  @Cron(CronExpression.EVERY_MINUTE)
-  async testCron() {
-    this.logger.log('🔥 TEST CRON - Running every minute: ' + new Date());
+  ) {
+    this.birthdayCheckHour = this.configService.get<number>(
+      'BIRTHDAY_CHECK_HOUR',
+      9,
+    );
+    this.logger.log(
+      `Birthday check hour configured: ${this.birthdayCheckHour}:00`,
+    );
   }
 
   /**
@@ -94,6 +97,14 @@ export class SchedulerService {
     } catch (error) {
       this.logger.error('Error in cleanup process', error.stack);
     }
+  }
+
+  /**
+   * Test cron -  runs every minute
+   */
+  @Cron(CronExpression.EVERY_MINUTE)
+  async testCron() {
+    this.logger.log('🔥 TEST CRON - Running every minute: ' + new Date());
   }
 
   /**

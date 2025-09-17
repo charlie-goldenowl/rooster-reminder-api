@@ -14,14 +14,21 @@ describe('AppController (e2e)', () => {
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
-          entities: ['src/**/*.entity.ts'],
+          entities: [__dirname + '/../src/**/*.entity.{ts,js}'],
           synchronize: true,
+          dropSchema: true,
         }),
       ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
     await app.init();
   });
 
@@ -35,7 +42,7 @@ describe('AppController (e2e)', () => {
         .get('/health')
         .expect(200)
         .expect((res) => {
-          expect(res.body).toHaveProperty('status', 'ok');
+          expect(res.body.status).toBe('ok');
           expect(res.body).toHaveProperty('timestamp');
           expect(res.body).toHaveProperty('uptime');
         });

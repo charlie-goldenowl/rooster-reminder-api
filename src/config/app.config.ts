@@ -33,7 +33,7 @@ const configuration = (): AppConfig => ({
     port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
   },
   webhook: {
-    url: process.env.WEBHOOK_URL ?? 'https://hookbin.com/bin/default',
+    url: process.env.WEBHOOK_URL ?? '',
   },
   logging: {
     level:

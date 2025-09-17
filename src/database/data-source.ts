@@ -16,7 +16,7 @@ export const AppDataSource = new DataSource({
   password: configService.get('DATABASE_PASSWORD', 'password'),
   database: configService.get('DATABASE_NAME', 'rooster_db'),
   entities: [User, EventLog],
-  migrations: ['dist/database/migrations/*.js'],
+  migrations: [__dirname + '/migrations/*{.ts,.js}'],
   synchronize: false,
   logging: configService.get('NODE_ENV') === 'development',
 });
