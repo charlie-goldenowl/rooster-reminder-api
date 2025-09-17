@@ -1,5 +1,6 @@
 import { Processor, Process } from '@nestjs/bull';
-import { Job } from 'bull';
+// import { Job } from 'bull';
+import type { Job } from 'bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { EventService } from '../event/event.service';
 import { NotificationService } from '../notification/notification.service';

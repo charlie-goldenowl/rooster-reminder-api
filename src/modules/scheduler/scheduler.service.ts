@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
+import type { Queue } from 'bull';
 import { UserService } from '../user/user.service';
 import { EventService } from '../event/event.service';
 import { TimezoneUtil } from '../../common/utils/timezone.util';

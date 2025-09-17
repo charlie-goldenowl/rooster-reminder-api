@@ -20,7 +20,7 @@ import { HealthController } from './common/controllers/health.controller';
     BullModule.forRoot({
       redis: {
         host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT) || 6379,
+        port: parseInt(process.env.REDIS_PORT ?? '6379'),
       },
     }),
     DatabaseModule,
