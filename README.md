@@ -64,7 +64,7 @@ src/
 ## Installation & Setup
 
 ### Prerequisites
-- Node.js >= 18
+- Node.js >= 23
 - PostgreSQL >= 13
 - Redis >= 6
 
@@ -99,7 +99,7 @@ npm run start:prod
 
 ## API Documentation
 - **API Documentation**: http://localhost:3000/api
-
+![img_4.png](img_4.png)
 
 ## Monitoring & Observability
 - **Health Checks**: `/health` endpoint
@@ -113,7 +113,7 @@ npm run start:prod
 ```bash
 docker-compose up -d
 ```
-
+![img_3.png](img_3.png)
 ## Unit tests
 
 ```bash

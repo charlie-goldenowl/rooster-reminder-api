@@ -45,6 +45,9 @@ async function bootstrap() {
   await app.listen(port);
   logger.log(`API is running on: http://localhost:${port}`);
   logger.log(`Swagger documentation: http://localhost:${port}/api`);
+  logger.log(
+    `Bull Dashboard is available at: http://localhost:${port}/admin/queues`,
+  );
 }
 
 bootstrap();

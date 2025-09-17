@@ -8,24 +8,43 @@ services:
     depends_on:
       - postgres
       - redis
+    env_file:
+      - .env
     environment:
-      - NODE_ENV=production
       - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=rooster_db
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=123456789
       - REDIS_HOST=redis
     volumes:
       - .:/app
       - /app/node_modules
+    command: >
+      sh -c "
+      echo 'Waiting for database...' &&
+      sleep 10 &&
+      echo 'Running migrations...' &&
+      npm run migration:run &&
+      echo 'Starting server...' &&
+      npm run start:dev
+      "
 
   postgres:
     image: postgres:15-alpine
     environment:
       POSTGRES_DB: rooster_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: 123456789
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
