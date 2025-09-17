@@ -1,24 +1,39 @@
 version: '3.8'
+
 services:
-  dev-db:
-    image: postgres:13
+  app:
+    build: .
     ports:
-      - 5434:5432
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: rooster_strong_pw
+      - NODE_ENV=production
+      - DATABASE_HOST=postgres
+      - REDIS_HOST=redis
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
       POSTGRES_DB: rooster_db
-    networks:
-      - rooster
-  test-db:
-    image: postgres:13
-    ports:
-      - 5435:5432
-    environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: test_passwd
-      POSTGRES_DB: rooster_db_test
-    networks:
-      - rooster
-networks:
-  rooster:
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 
 @Entity('users')
-@Index(['birthday', 'timezone'])
+@Index(['birthday', 'timezone']) // Performance optimization
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -31,6 +31,7 @@ export class User {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
+  // Virtual property for full name
   get fullName(): string {
     return `${this.firstName} ${this.lastName}`;
   }

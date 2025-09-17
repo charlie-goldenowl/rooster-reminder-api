@@ -4,17 +4,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UserModule } from './modules/user/user.module';
-import { HealthController } from './common/health/health.controller';
-import { DatabaseModule } from './database/database.module';
-import { SchedulerModule } from './modules/scheduler/scheduler.module';
-import { NotificationModule } from './modules/notification/notification.module';
-import { EventModule } from './modules/event/event.module';
 import { EventModule } from './modules/event/event.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { DatabaseModule } from './database/database.module';
 import { HealthController } from './common/controllers/health.controller';
-import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [

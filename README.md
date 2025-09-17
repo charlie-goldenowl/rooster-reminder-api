@@ -188,7 +188,7 @@ Key environment variables:
 # Database
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
-DATABASE_NAME=birthday_reminder
+DATABASE_NAME=rooster_db
 DATABASE_USERNAME=postgres
 DATABASE_PASSWORD=password
 

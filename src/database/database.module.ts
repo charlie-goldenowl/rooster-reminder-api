@@ -13,7 +13,7 @@ import { EventLog } from '../modules/event/entities/event-log.entity';
         port: configService.get('DATABASE_PORT', 5432),
         username: configService.get('DATABASE_USERNAME', 'postgres'),
         password: configService.get('DATABASE_PASSWORD', 'password'),
-        database: configService.get('DATABASE_NAME', 'birthday_reminder'),
+        database: configService.get('DATABASE_NAME', 'rooster_db'),
         entities: [User, EventLog],
         synchronize: configService.get('NODE_ENV') === 'development',
         logging: configService.get('NODE_ENV') === 'development',
