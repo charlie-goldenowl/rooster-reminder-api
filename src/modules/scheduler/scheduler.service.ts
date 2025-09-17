@@ -11,6 +11,8 @@ import { ConfigService } from '@nestjs/config';
 export class SchedulerService {
   private readonly logger = new Logger(SchedulerService.name);
   private readonly birthdayCheckHour: number;
+  private readonly retryAttempts: number;
+  private readonly retryDelayBase: number;
 
   constructor(
     private readonly userService: UserService,
@@ -23,6 +25,11 @@ export class SchedulerService {
       'BIRTHDAY_CHECK_HOUR',
       9,
     );
+    this.retryAttempts = this.configService.get<number>('RETRY_ATTEMPTS', 3);
+    this.retryDelayBase = this.configService.get<number>(
+      'RETRY_DELAY_BASE',
+      60000,
+    );
     this.logger.log(
       `Birthday check hour configured: ${this.birthdayCheckHour}:00`,
     );
@@ -31,9 +38,9 @@ export class SchedulerService {
   /**
    * Main scheduler - runs every hour to check for events
    */
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_MINUTE)
   async scheduleEvents() {
-    this.logger.log('Starting hourly event scheduling');
+    this.logger.log('[scheduleEvents] Starting hourly event scheduling');
 
     try {
       // Get all timezones where it's currently 9 AM
@@ -49,21 +56,24 @@ export class SchedulerService {
 
       this.logger.log('Completed hourly event scheduling');
     } catch (error) {
-      this.logger.error('Error in hourly event scheduling', error.stack);
+      this.logger.error(
+        'Error in hourly event scheduling',
+        error instanceof Error ? error.stack : String(error),
+      );
     }
   }
 
   /**
    * Recovery scheduler - runs every 30 minutes to retry failed events
    */
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_MINUTE)
   async scheduleEventRecovery() {
-    this.logger.log('Starting event recovery process');
+    this.logger.log('[scheduleEventRecovery] Starting event recovery process');
 
     try {
-      const failedEvents = await this.eventService.getFailedEventsForRetry();
-
-      this.logger.log(`Found ${failedEvents.length} events to retry`);
+      const failedEvents = await this.eventService.getFailedEventsForRetry(
+        this.retryAttempts,
+      );
 
       for (const eventLog of failedEvents) {
         await this.notificationQueue.add(
@@ -71,14 +81,12 @@ export class SchedulerService {
           { eventLogId: eventLog.id },
           {
             delay: this.calculateRetryDelay(eventLog.retryCount),
-            attempts: 1, // Single attempt per retry job
+            attempts: 1,
             removeOnComplete: 10,
             removeOnFail: 5,
           },
         );
       }
-
-      this.logger.log('Completed event recovery scheduling');
     } catch (error) {
       this.logger.error('Error in event recovery process', error.stack);
     }
@@ -104,7 +112,10 @@ export class SchedulerService {
    */
   @Cron(CronExpression.EVERY_MINUTE)
   async testCron() {
-    this.logger.log('🔥 TEST CRON - Running every minute: ' + new Date());
+    this.logger.log(
+      `🔥 TEST CRON - Running every minute: ${new Date().toISOString()}`,
+    );
+    await Promise.resolve();
   }
 
   /**
@@ -137,7 +148,7 @@ export class SchedulerService {
           'send-notification',
           { eventLogId: eventLog.id },
           {
-            attempts: 3,
+            attempts: this.retryAttempts,
             backoff: {
               type: 'exponential',
               delay: 2000,
@@ -160,25 +171,25 @@ export class SchedulerService {
    * Calculate exponential backoff delay for retries
    */
   private calculateRetryDelay(retryCount: number): number {
-    // Exponential backoff: 2^retryCount * 60000 (1 minute base)
-    return Math.pow(2, retryCount) * 60000;
+    // Exponential backoff: 2^retryCount * retryDelayBase (1 minute base)
+    return Math.pow(2, retryCount) * this.retryDelayBase;
   }
 
   /**
    * Get scheduler statistics
    */
-  async getStats() {
-    const eventQueueStats = await this.eventQueue.getJobCounts();
-    const notificationQueueStats = await this.notificationQueue.getJobCounts();
-    const eventStats = await this.eventService.getEventStats();
-
-    return {
-      queues: {
-        events: eventQueueStats,
-        notifications: notificationQueueStats,
-      },
-      events: eventStats,
-      lastRun: new Date().toISOString(),
-    };
-  }
+  // async getStats() {
+  //   const eventQueueStats = await this.eventQueue.getJobCounts();
+  //   const notificationQueueStats = await this.notificationQueue.getJobCounts();
+  //   const eventStats = await this.eventService.getEventStats();
+  //
+  //   return {
+  //     queues: {
+  //       events: eventQueueStats,
+  //       notifications: notificationQueueStats,
+  //     },
+  //     events: eventStats,
+  //     lastRun: new Date().toISOString(),
+  //   };
+  // }
 }

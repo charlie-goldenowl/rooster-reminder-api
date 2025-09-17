@@ -3,8 +3,24 @@ import {
   IsNotEmpty,
   IsDateString,
   IsTimeZone,
+  Validate,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { TimezoneUtil } from '../../../common/utils/timezone.util';
+
+@ValidatorConstraint({ name: 'isValidTimezone', async: false })
+export class IsValidTimezone implements ValidatorConstraintInterface {
+  validate(timezone: string) {
+    return TimezoneUtil.isValidTimezone(timezone);
+  }
+
+  defaultMessage() {
+    const supported = TimezoneUtil.getSupportedTimezones().join(', ');
+    return `Timezone must be one of: ${supported}`;
+  }
+}
 
 export class CreateUserDto {
   @ApiProperty({
@@ -38,5 +54,6 @@ export class CreateUserDto {
   })
   @IsString()
   @IsTimeZone()
+  @Validate(IsValidTimezone)
   timezone: string;
 }

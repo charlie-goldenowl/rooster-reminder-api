@@ -13,17 +13,30 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
+    "test:cov": "jest --coverage --coverageReporters=text-lcov --coverageReporters=html",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:unit": "jest --testPathPattern=src/.*\\.spec\\.ts$",
+    "test:integration": "jest --testPathPattern=src/.*\\.integration\\.spec\\.ts$",
+    "test:scheduler": "jest --testPathPattern=scheduler.*\\.spec\\.ts$",
+    "test:scheduler:watch": "jest --testPathPattern=scheduler.*\\.spec\\.ts$ --watch",
+    "test:scheduler:coverage": "jest --testPathPattern=scheduler.*\\.spec\\.ts$ --coverage",
+
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:generate": "npm run typeorm -- migration:generate -d ./src/database/data-source.ts",
     "migration:run": "npm run typeorm -- migration:run -d ./src/database/data-source.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d ./src/database/data-source.ts",
+
     "seed": "ts-node src/database/seeds/seed.command.ts",
-    "seed:dev": "NODE_ENV=development npm run seed"
+    "seed:dev": "NODE_ENV=development npm run seed",
+    "seed:test": "NODE_ENV=test npm run seed",
+
+    "test:create-birthday-today": "ts-node scripts/create-test-birthday-user.ts",
+    "test:trigger-scheduler": "curl -X POST http://localhost:3000/admin/trigger-birthday-check",
+    "test:webhook": "curl -X POST http://localhost:3000/admin/test-webhook"
   },
   "dependencies": {
     "@bull-board/api": "^6.12.7",
@@ -89,9 +102,22 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.(t|j)s",
+      "!**/*.interface.ts",
+      "!**/*.enum.ts",
+      "!**/*.dto.ts",
+      "!**/main.ts",
+      "!**/*.spec.ts"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "coverageThresholds": {
+      "global": {
+        "branches": 70,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    }
   }
 }

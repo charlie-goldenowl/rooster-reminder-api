@@ -6,19 +6,9 @@ export class TimezoneUtil {
    */
   static getTimezonesAtHour(targetHour: number): string[] {
     const now = DateTime.now();
-    const timezones = [
-      'America/New_York',
-      'America/Los_Angeles',
-      'Europe/London',
-      'Europe/Paris',
-      'Asia/Tokyo',
-      'Asia/Shanghai',
-      'Australia/Sydney',
-      'Australia/Melbourne',
-      // Add more as needed
-    ];
+    const supportedTimezones = this.getSupportedTimezones();
 
-    return timezones.filter((tz) => {
+    return supportedTimezones.filter((tz) => {
       const localTime = now.setZone(tz);
       return localTime.hour === targetHour;
     });
@@ -39,5 +29,31 @@ export class TimezoneUtil {
    */
   static getCurrentYear(timezone: string): number {
     return DateTime.now().setZone(timezone).year;
+  }
+
+  static isValidTimezone(timezone: string): boolean {
+    const supportedTimezones = this.getSupportedTimezones();
+    return supportedTimezones.includes(timezone);
+  }
+
+  static getDefaultTimezone(): string {
+    return process.env.DEFAULT_TIMEZONE || 'UTC';
+  }
+
+  static getSupportedTimezones(): string[] {
+    const configTimezones = process.env.SUPPORTED_TIMEZONES;
+
+    if (configTimezones) {
+      return configTimezones.split(',').map((tz) => tz.trim());
+    }
+
+    // Default fallback
+    return [
+      'UTC',
+      'America/New_York',
+      'Europe/London',
+      'Asia/Tokyo',
+      'Australia/Sydney',
+    ];
   }
 }
