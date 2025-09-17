@@ -99,7 +99,7 @@ npm run start:prod
 
 ## API Documentation
 - **API Documentation**: http://localhost:3000/api
-![img_4.png](img_4.png)
+![img_4.png](docs/img_4.png)
 
 ## Monitoring & Observability
 - **Health Checks**: `/health` endpoint
@@ -113,10 +113,10 @@ npm run start:prod
 ```bash
 docker-compose up -d
 ```
-![img_3.png](img_3.png)
+![img_3.png](docs/img_3.png)
 ## Unit tests
 
 ```bash
 npm run test
 ```
-![img_1.png](img_1.png)
+![img_1.png](docs/img_1.png)
