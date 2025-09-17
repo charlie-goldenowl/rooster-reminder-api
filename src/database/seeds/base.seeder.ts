@@ -11,10 +11,14 @@ export abstract class BaseSeeder {
   protected async clearTable(tableName: string): Promise<void> {
     this.logger.log(`Clearing table: ${tableName}`);
     await this.dataSource.query(`DELETE FROM ${tableName}`);
-    await this.dataSource.query(`ALTER SEQUENCE ${tableName}_id_seq RESTART WITH 1`);
+    await this.dataSource.query(
+      `ALTER SEQUENCE ${tableName}_id_seq RESTART WITH 1`,
+    );
   }
 
   protected async resetSequence(tableName: string): Promise<void> {
-    await this.dataSource.query(`ALTER SEQUENCE ${tableName}_id_seq RESTART WITH 1`);
+    await this.dataSource.query(
+      `ALTER SEQUENCE ${tableName}_id_seq RESTART WITH 1`,
+    );
   }
 }

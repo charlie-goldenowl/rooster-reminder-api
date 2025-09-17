@@ -18,6 +18,14 @@ export class SchedulerService {
   ) {}
 
   /**
+   * Test cron -  runs every minute
+   */
+  @Cron(CronExpression.EVERY_MINUTE)
+  async testCron() {
+    this.logger.log('🔥 TEST CRON - Running every minute: ' + new Date());
+  }
+
+  /**
    * Main scheduler - runs every hour to check for events
    */
   @Cron(CronExpression.EVERY_HOUR)

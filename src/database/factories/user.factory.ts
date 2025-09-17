@@ -11,7 +11,7 @@ export class UserFactory {
   static create(options: UserFactoryOptions = {}): Partial<User> {
     const timezones = [
       'America/New_York',
-      'America/Los_Angeles', 
+      'America/Los_Angeles',
       'America/Chicago',
       'Europe/London',
       'Europe/Paris',
@@ -22,32 +22,75 @@ export class UserFactory {
     ];
 
     const firstNames = [
-      'John', 'Jane', 'Michael', 'Sarah', 'David', 'Emma',
-      'Robert', 'Lisa', 'James', 'Maria', 'William', 'Jennifer',
-      'Richard', 'Patricia', 'Charles', 'Linda', 'Thomas', 'Elizabeth'
+      'John',
+      'Jane',
+      'Michael',
+      'Sarah',
+      'David',
+      'Emma',
+      'Robert',
+      'Lisa',
+      'James',
+      'Maria',
+      'William',
+      'Jennifer',
+      'Richard',
+      'Patricia',
+      'Charles',
+      'Linda',
+      'Thomas',
+      'Elizabeth',
     ];
 
     const lastNames = [
-      'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia',
-      'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez',
-      'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore'
+      'Smith',
+      'Johnson',
+      'Williams',
+      'Brown',
+      'Jones',
+      'Garcia',
+      'Miller',
+      'Davis',
+      'Rodriguez',
+      'Martinez',
+      'Hernandez',
+      'Lopez',
+      'Gonzalez',
+      'Wilson',
+      'Anderson',
+      'Thomas',
+      'Taylor',
+      'Moore',
     ];
 
     return {
-      firstName: options.firstName || firstNames[Math.floor(Math.random() * firstNames.length)],
-      lastName: options.lastName || lastNames[Math.floor(Math.random() * lastNames.length)],
-      birthday: options.birthday ? new Date(options.birthday) : this.randomBirthday(),
-      timezone: options.timezone || timezones[Math.floor(Math.random() * timezones.length)],
+      firstName:
+        options.firstName ||
+        firstNames[Math.floor(Math.random() * firstNames.length)],
+      lastName:
+        options.lastName ||
+        lastNames[Math.floor(Math.random() * lastNames.length)],
+      birthday: options.birthday
+        ? new Date(options.birthday)
+        : this.randomBirthday(),
+      timezone:
+        options.timezone ||
+        timezones[Math.floor(Math.random() * timezones.length)],
     };
   }
 
   private static randomBirthday(): Date {
     const start = new Date(1970, 0, 1);
     const end = new Date(2005, 11, 31);
-    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+    return new Date(
+      start.getTime() + Math.random() * (end.getTime() - start.getTime()),
+    );
   }
 
-  static createMany(count: number, options: UserFactoryOptions = {}): Partial<User>[] {
+  static createMany(
+    count: number,
+    options: UserFactoryOptions = {},
+  ): Partial<User>[] {
     return Array.from({ length: count }, () => this.create(options));
   }
 }

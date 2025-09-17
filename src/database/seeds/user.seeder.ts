@@ -1,24 +1,22 @@
-import { DataSource } from 'typeorm';
 import { BaseSeeder } from './base.seeder';
 import { User } from '../../modules/user/entities/user.entity';
 import { UserFactory } from '../factories/user.factory';
 
 export class UserSeeder extends BaseSeeder {
   async run(): Promise<void> {
-    this.logger.log('🌱 Starting User Seeder...');
-
     const userRepository = this.dataSource.getRepository(User);
 
-    // Clear existing data
-    await userRepository.delete({});
-    this.logger.log('🗑️  Cleared existing users');
+    // await userRepository.delete({});
+    await userRepository.query(
+      `TRUNCATE TABLE "users" RESTART IDENTITY CASCADE`,
+    );
 
-    // Create test users with birthdays today (for immediate testing)
     const today = new Date();
-    const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const todayString = `${today.getFullYear()}-${String(
+      today.getMonth() + 1,
+    ).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
     const testUsers = [
-      // Today's birthday users for immediate testing
       UserFactory.create({
         firstName: 'Alice',
         lastName: 'Johnson',
@@ -37,16 +35,12 @@ export class UserSeeder extends BaseSeeder {
         birthday: todayString,
         timezone: 'Asia/Tokyo',
       }),
-
-      // Tomorrow's birthday users
       UserFactory.create({
         firstName: 'Diana',
         lastName: 'Wilson',
         birthday: this.getTomorrowString(),
         timezone: 'America/Los_Angeles',
       }),
-
-      // Users with birthdays in different months
       UserFactory.create({
         firstName: 'Emma',
         lastName: 'Davis',
@@ -61,30 +55,17 @@ export class UserSeeder extends BaseSeeder {
       }),
     ];
 
-    // Save test users
-    const savedTestUsers = await userRepository.save(testUsers);
-    this.logger.log(`✅ Created ${savedTestUsers.length} test users`);
+    await userRepository.save(testUsers);
 
-    // Create random users for scale testing
     const randomUsers = UserFactory.createMany(20);
-    const savedRandomUsers = await userRepository.save(randomUsers);
-    this.logger.log(`✅ Created ${savedRandomUsers.length} random users`);
-
-    // Log summary
-    this.logger.log('📊 Seeding Summary:');
-    this.logger.log(
-      `   • Total users: ${savedTestUsers.length + savedRandomUsers.length}`,
-    );
-    this.logger.log(`   • Today's birthdays: 3 users`);
-    this.logger.log(`   • Tomorrow's birthdays: 1 user`);
-    this.logger.log(`   • Timezones covered: 8 different zones`);
-
-    this.logger.log('🎉 User Seeder completed successfully!');
+    await userRepository.save(randomUsers);
   }
 
   private getTomorrowString(): string {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    return `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+    return `${tomorrow.getFullYear()}-${String(
+      tomorrow.getMonth() + 1,
+    ).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
   }
 }
