@@ -26,6 +26,17 @@ A scalable, timezone-aware birthday reminder service built with NestJS, TypeORM,
 -  **Race condition prevention**: Distributed locking with Redis  (BullMQ)
 -  **Extensible architecture**: Easy to add new event types (anniversary...)
 
+## Duplicate Message Prevention
+
+**Multi-Layer Protection Against Duplicate Birthday Messages:**
+
+- **Database Constraints**: Unique index on (userId, eventType, eventYear) prevents duplicate event creation
+- **Application Logic**: Service layer checks for existing events before creating new ones
+- **Redis Distributed Locks**: 30-second TTL locks prevent concurrent processing of same event
+- **Status Validation**: Only processes events with PENDING status, skips SENT/FAILED events
+
+This ensures each user receives exactly one birthday message per year, even under high concurrency or system failures
+
 ## Future Extensions
 
 Easy to add new features:

@@ -68,6 +68,7 @@ export class UserService {
    * Find users who have birthdays today in the specified timezone
    */
   async findBirthdayUsersInTimezone(timezone: string): Promise<User[]> {
+    this.logger.log(`[findBirthdayUsersInTimezone] timezone: ${timezone}`);
     const users = await this.userRepository.find({
       where: { timezone },
     });
@@ -104,5 +105,21 @@ export class UserService {
       total,
       byTimezone,
     };
+  }
+
+  /**
+   * Get all distinct timezones from users in database
+   *
+   * Note: This query could be cached in memory or Redis in the future
+   *       since the list of user timezones is unlikely to change frequently,
+   *       which would improve performance.
+   */
+  async getDistinctTimezones(): Promise<string[]> {
+    return (
+      await this.userRepository
+        .createQueryBuilder('user')
+        .select('DISTINCT user.timezone', 'timezone')
+        .getRawMany<{ timezone: string }>()
+    ).map((row) => row.timezone);
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectQueue } from '@nestjs/bull';
+import { DateTime } from 'luxon';
 import type { Queue } from 'bull';
 import { UserService } from '../user/user.service';
 import { EventService } from '../event/event.service';
@@ -25,6 +26,9 @@ export class SchedulerService {
       'BIRTHDAY_CHECK_HOUR',
       9,
     );
+    // NOTE: just for demo because when i film the clip i cant wait until 9am, i am taking the current time in my timezone instead of 9 (fixed)
+    //this.birthdayCheckHour = DateTime.now().setZone('Asia/Ho_Chi_Minh').hour;
+
     this.retryAttempts = this.configService.get<number>('RETRY_ATTEMPTS', 3);
     this.retryDelayBase = this.configService.get<number>(
       'RETRY_DELAY_BASE',
@@ -37,18 +41,33 @@ export class SchedulerService {
 
   /**
    * Main scheduler - runs every hour to check for events
+   * Req: send birthday message at exactly 9am on their local time
    */
   @Cron(CronExpression.EVERY_HOUR)
+  // @Cron(CronExpression.EVERY_30_SECONDS)
   async scheduleEvents() {
     this.logger.log('[scheduleEvents] Starting hourly event scheduling');
 
     try {
       // Get all timezones where it's currently 9 AM
-      const targetTimezones = TimezoneUtil.getTimezonesAtHour(9);
+      const now = DateTime.now();
+      const allUserTimezones = await this.userService.getDistinctTimezones();
+      this.logger.log(allUserTimezones);
+      const targetTimezones = TimezoneUtil.getTimezonesAtHourFromUsers(
+        this.birthdayCheckHour,
+        allUserTimezones,
+      );
 
       this.logger.log(
-        `Found ${targetTimezones.length} timezones at 9 AM: ${targetTimezones.join(', ')}`,
+        `[${now.toFormat('yyyy-MM-dd HH:mm:ss')}] Found ${targetTimezones.length} timezone${targetTimezones.length !== 1 ? 's' : ''} at ${this.birthdayCheckHour} AM:`,
       );
+
+      for (const timezone of targetTimezones) {
+        const timeInZone = now.setZone(timezone);
+        this.logger.log(
+          `  → ${timezone}: ${timeInZone.toFormat('HH:mm:ss')} (UTC${timeInZone.toFormat('ZZ')}) - ${timeInZone.toFormat('cccc, dd MMM yyyy')}`,
+        );
+      }
 
       for (const timezone of targetTimezones) {
         await this.processTimezone(timezone);

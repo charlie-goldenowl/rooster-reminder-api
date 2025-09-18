@@ -2,26 +2,56 @@ import { DateTime } from 'luxon';
 
 export class TimezoneUtil {
   /**
-   * Get all timezones where it's currently the specified hour
+   * Get timezones at target hour from user data (dynamic)
    */
-  static getTimezonesAtHour(targetHour: number): string[] {
+  static getTimezonesAtHourFromUsers(
+    targetHour: number,
+    userTimezones: string[],
+  ): string[] {
     const now = DateTime.now();
-    const supportedTimezones = this.getSupportedTimezones();
 
-    return supportedTimezones.filter((tz) => {
-      const localTime = now.setZone(tz);
-      return localTime.hour === targetHour;
+    return userTimezones.filter((tz) => {
+      try {
+        const localTime = now.setZone(tz);
+        return localTime.hour === targetHour;
+      } catch (error: unknown) {
+        // Invalid timezone, skip
+        if (error instanceof Error) {
+          console.error(`Error processing timezone: ${error.message}`);
+        }
+        return false;
+      }
     });
   }
 
   /**
    * Check if it's the user's birthday today in their timezone
    */
-  static isBirthdayToday(birthday: Date, timezone: string): boolean {
-    const userNow = DateTime.now().setZone(timezone);
-    const birthDate = DateTime.fromJSDate(birthday);
+  static isBirthdayToday(birthday: Date | string, timezone: string): boolean {
+    console.log(
+      `[DEBUG] birthday type: ${typeof birthday}, value: ${birthday.toString()}, isDate: ${birthday instanceof Date}`,
+    );
 
-    return userNow.month === birthDate.month && userNow.day === birthDate.day;
+    if (!birthday) return false;
+
+    const birthDate =
+      typeof birthday === 'string'
+        ? DateTime.fromISO(birthday)
+        : DateTime.fromJSDate(birthday);
+
+    if (!birthDate.isValid) return false;
+
+    const userNow = DateTime.now().setZone(timezone);
+    if (!userNow.isValid) return false;
+
+    const isMatch =
+      userNow.month === birthDate.month && userNow.day === birthDate.day;
+
+    console.log(
+      `[isBirthdayToday] userNow: ${userNow.toFormat('MM-dd')}, birthDate: ${birthDate.toFormat('MM-dd')}, match: ${isMatch}`,
+    );
+
+    return isMatch;
   }
 
   /**
@@ -29,31 +59,5 @@ export class TimezoneUtil {
    */
   static getCurrentYear(timezone: string): number {
     return DateTime.now().setZone(timezone).year;
-  }
-
-  static isValidTimezone(timezone: string): boolean {
-    const supportedTimezones = this.getSupportedTimezones();
-    return supportedTimezones.includes(timezone);
-  }
-
-  static getDefaultTimezone(): string {
-    return process.env.DEFAULT_TIMEZONE || 'UTC';
-  }
-
-  static getSupportedTimezones(): string[] {
-    const configTimezones = process.env.SUPPORTED_TIMEZONES;
-
-    if (configTimezones) {
-      return configTimezones.split(',').map((tz) => tz.trim());
-    }
-
-    // Default fallback
-    return [
-      'UTC',
-      'America/New_York',
-      'Europe/London',
-      'Asia/Tokyo',
-      'Australia/Sydney',
-    ];
   }
 }
