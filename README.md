@@ -134,9 +134,10 @@ npm run start:prod
 ## Monitoring & Observability
 
 - **Health Checks**: `/health` endpoint
-- **Queue Dashboard**: Bull Dashboard at http://localhost:3000/admin/queues
 - **Logging**: Structured logging with Winston
 - **Metrics**: Custom metrics for message delivery
+- **Queue Dashboard**: Bull Dashboard at http://localhost:3000/admin/queues
+  ![img.png](docs/img_12.png)
 
 ## Deployment
 
