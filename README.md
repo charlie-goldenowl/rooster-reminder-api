@@ -22,9 +22,9 @@ A scalable, timezone-aware birthday reminder service built with NestJS, TypeORM,
 ## Features
 
 -  **Timezone-aware scheduling**: Send messages at 9 AM local time
--  **Fault tolerance**: Auto-retry failed messages with exponential backoff
+-  **Fault tolerance**: Auto-retry failed messages with exponential backoff (3 attempts: 1min → 2min → 4min delays)
 -  **Race condition prevention**: Distributed locking with Redis  (BullMQ)
--  **Extensible architecture**: Easy to add new event types (anniversary, etc.)
+-  **Extensible architecture**: Easy to add new event types (anniversary...)
 
 ## Future Extensions
 
